@@ -10,8 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { WifiOff } from 'lucide-react-native';
 import { NewsArticle, NewsCategory } from '@/types/news';
-import { fetchNews } from '@/services/newsApi';
-import { saveNewsToCache, getNewsFromCache } from '@/services/cacheService';
+import { getNewsWithCache } from '@/services/newsManager';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { NewsCard } from '@/components/NewsCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -32,37 +31,32 @@ export default function NewsScreen() {
       else setIsLoading(true);
       setError(null);
 
-      if (isOnline) {
-        const data = await fetchNews(selectedCategory || undefined);
+      const data = await getNewsWithCache(selectedCategory ?? undefined, isOnline);
+      console.log("📝 DATA LENGTH:", data.length);
+
+      if (data.length > 0) {
         setNews(data);
         setFilteredNews(data);
-        await saveNewsToCache(data);
       } else {
-        const cachedData = await getNewsFromCache();
-        if (cachedData) {
-          const filtered = selectedCategory
-            ? cachedData.filter(article => article.category === selectedCategory)
-            : cachedData;
-          setNews(cachedData);
-          setFilteredNews(filtered);
-        } else {
-          setError('No cached news available. Please connect to the internet.');
-        }
+        setError('No cached news available. Please connect to the internet.');
       }
     } catch (err) {
+      console.error("💥 Error loading news:", err);
       setError('Failed to load news. Please try again.');
-      console.error('Error loading news:', err);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
     }
   }, [isOnline, selectedCategory]);
 
+
   useEffect(() => {
-    if (!isChecking) {
-      loadNews();
-    }
-  }, [isChecking, loadNews]);
+    console.log("✅ Network checked:", { isChecking, isOnline });
+
+    if (isChecking) return; // đợi NetInfo xong rồi mới xử lý
+
+    loadNews(); // ✅ Khi mạng đã xác định (online hoặc offline) thì load cache/fetch
+  }, [isChecking, isOnline, loadNews]);
 
   useEffect(() => {
     if (news.length > 0) {

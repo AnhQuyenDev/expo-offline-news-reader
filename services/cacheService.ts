@@ -30,6 +30,9 @@ export async function getNewsFromCache(): Promise<NewsArticle[] | null> {
     }
 
     const cacheAge = Date.now() - parseInt(timestamp, 10);
+    console.log("CACHE EXISTS?", !!jsonValue);
+    console.log("CACHE AGE (min):", cacheAge / 1000 / 60);
+
     if (cacheAge > CACHE_DURATION) {
       return null;
     }
