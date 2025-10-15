@@ -29,10 +29,11 @@ Khi mất mạng — lấy dữ liệu từ cache và hiển thị cho người 
 
 📥 Cài đặt & chạy thử
 # 1. Clone repo
-git clone https://github.com/your-username/offline-news-reader.git
+git clone https://github.com/AnhQuyenDev/expo-offline-news-reader.git
+git checkout -b master (chuyển qua nhánh master)
 
 # 2. Cài dependencies
-cd offline-news-reader
+cd expo-offline-news-reader
 npm install
 # hoặc yarn install
 
